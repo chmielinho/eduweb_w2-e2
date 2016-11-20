@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+	<meta charset="UTF-8">
+	<title>Eduweb.pl - Bootcamp</title>
+	<meta name="description" content="Site contain every exercise done on bootcamp">
+	<meta name="author" content="Mateusz Chmielarz">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		.bg { background: #ffc2c2; font-weight: bold; border: 2px solid #ff9595; } body section { max-width: 600px; margin: 20px auto; } body h2 { background: #d4d4d4; border: 2px solid #9d9d9d; padding: 5px; padding-left: 20px; } body > h2 { text-align: center; font-size: 50px; margin: 0; padding: 0; background: none; border: 0; } body .answer { border-top: 2px solid #9d9d9d; padding-top: 20px; } body .answer .zadanie4 { border: 2px solid #ff9595; } body .answer > a { display: block; width: 250px; text-align: center; margin-right: 10%; margin-left: auto; color: #9d9d9d; font-weight: bold; font-size: 20px; } body ol li { margin: 10px auto; } body #side-menu { width: 150px; position: fixed; top: calc(50% - 100px); left: -150px; background: #000; color: white; border-radius: 0 0 5px 0; } body #side-menu ul { list-style: none; padding: 0; text-align: center; } body #side-menu ul a { display: block; padding: 5px 0; color: white; text-decoration: none; font-size: 20px; width: 100%; } body #side-menu ul a:hover { background: grey; } body #btn { position: fixed; top: calc(50% - 100px); left: 0; height: 50px; width: 50px; background: #000; color: white; border: 0; border-left: 2px solid grey; border-radius: 0 5px 0 0; outline: none; } body #btn1 { position: fixed; top: calc(50% - 50px); left: 0; height: 50px; width: 50px; background: white; color: black; border: 2px solid black; border-left: 0; border-top: 0; border-radius: 0 0 5px 0; outline: none; }
+	</style>
+</head>
+<body>
+	<section id="zad2">
+		<div class="headline">
+			<h2>Zadanie nr 2</h2>
+			<h3>Dziedziczenie z klasy EventEmitter</h3>
+			<p>Przygotowany pod adresem http://pastebin.com/YEBncx0d kod zmodyfikuj tak, aby obiekty tworzone z klasy Database mogły korzystać z wszystkich metody klasy EventEmitter. Na chwilę obecną, podany kod wygeneruje błąd, gdyż klasa Database nie zawiera metody on oraz emit. Skorzystaj z dziedziczenia prototypowego aby klasą nadrzędną dla Database stała się klasa EventEmitter.</p>
+		</div>
+		<div class="answer">
+			<a href="https://github.com/chmielinho/eduweb_w2-e2">Rozwiązanie na github.com</a>
+			
+		</div>
+	</section>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+	<script>
+		function EventEmitter() {
+			this.events = {};
+		}
+
+		EventEmitter.prototype.on = function(type, fn) {
+			if(!type || !fn) return;
+			this.events[type] = this.events[type] || [];
+			this.events[type].push(fn);
+		}
+
+		EventEmitter.prototype.emit = function(type, data) {
+			var fns = this.events[type];
+			if(!fns || !fns.length) return;
+			for(var i = 0; i < fns.length; i++) {
+				fns[i](data);
+			}
+		};
+
+		function Database(url) {
+			EventEmitter.call(this);
+			this.url = url;
+		}
+		
+		Database.prototype = Object.create(EventEmitter.prototype);
+		Database.prototype.constructor = Database;
+		
+		Database.prototype.connect = function() {
+			// fikcyjne podłączenie do bazy
+			this.emit("connect", this.url);
+		}
+
+		Database.prototype.disconnect = function() {
+			// fikcyjne zakończenie połączenia z bazą
+			this.emit("disconnect", this.url);
+		}
+
+		// Użycie EventEmittera
+		var ev = new EventEmitter();
+
+		ev.on("hello", function(message) {
+			console.log("Witaj " + message + "!");
+		});
+
+		ev.on("hello", function(message) {
+			console.log("Siema " + message + ".");
+		});
+
+		ev.on("goodbye", function() {
+			console.log("Do widzenia!");
+		});
+
+		ev.emit("hello", "Marek");
+		ev.emit("goodbye");
+		ev.emit("custom"); // nic się nie wydarzy
+
+		// DO ZROBIENIA!
+		// Docelowe użycie klasy Database
+		var db = new Database("db://localhost:3000"); // fikcyjny adres
+
+		db.on("connect", function(url) {
+			console.log("Połączenie z bazą pod adresem " + url + " zostało ustanowione.");
+		});
+
+		db.on("disconnect", function(url) {
+			console.log("Połączenie z bazą pod adresem " + url + " zostało zakończone.");
+		});
+
+		db.connect();
+
+		// po 5 sekundach rozłączamy się
+		setTimeout(function() {
+			db.disconnect();
+		}, 5000);
+	</script>
+</body>
+</html>
